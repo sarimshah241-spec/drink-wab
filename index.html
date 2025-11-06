@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sizzler Drinks </title>
+  <link rel="icon" href="imagess/sizzler logo.jpg">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <!-- jQuery CDN -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#07120e;        /* deep black-green */
+      --panel:#0b1c17;
+      --muted:#9fb6aa;
+      --green:#a2890d;
+      --accent:#a2890d;
+      --glass: rgba(255,255,255,0.03);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,var(--bg), #05140f);
+      color:#e9f7f0;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+    }
+
+    /* ---------- NAVBAR ---------- */
+    .nav {
+      position:fixed; inset:0 0 auto 0; height:72px;
+      display:flex; align-items:center;
+      justify-content:center; z-index:999;
+      backdrop-filter: blur(6px);
+    }
+    .nav .container{
+      width:95%; max-width:1200px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .brand {
+      display:flex; align-items:center; gap:10px; text-decoration:none;
+      color:var(--green); font-weight:800; font-size:1.2rem;
+    }
+    .brand .logo {
+      width:44px; height:44px; border-radius:10px;
+      background:linear-gradient(135deg,var(--green),var(--accent)); display:flex; align-items:center; justify-content:center;
+      box-shadow: 0 4px 18px rgba(13,179,106,0.12);
+      color:#042617; font-weight:800;
+    }
+    .nav-links { display:flex; gap:18px; align-items:center; }
+    .nav-links a {
+      color:#cfeee0; text-decoration:none; padding:8px 10px; border-radius:8px;
+      transition:background .18s, color .18s;
+    }
+    .nav-links a:hover{ background:var(--glass); color:var(--green); }
+    .cta {
+      background:linear-gradient(90deg,var(--green),var(--accent)); color:#042617; padding:8px 14px; border-radius:10px; font-weight:700; text-decoration:none;
+    }
+
+    /* mobile nav button */
+    .menu-toggle{ display:none; background:none; border:0; color:#e6f8ee; font-size:1.4rem; padding:6px }
+
+    /* ---------- HERO ---------- */
+    .hero{
+      min-height:92vh; display:flex; align-items:center;
+      padding-top:72px; /* nav height */
+      background-image: linear-gradient(180deg, rgba(7,18,14,0.55), rgba(5,20,15,0.68)),
+        url(imagess/header\ ke\ wabb.png);
+      background-size:cover; background-position:center;
+    }
+    .hero .inner{ width:95%; max-width:1200px; margin:auto; display:flex; gap:40px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .hero .left{ flex:1 1 480px; min-width:260px; }
+    .hero h1{ font-size:clamp(1.6rem,4vw,3rem); margin:0 0 10px; color:var(--green); letter-spacing:0.5px; }
+    .hero p.lead{ color: #cfeee0; margin-bottom:18px; font-size:1rem; max-width:56ch }
+    .hero .buttons{ display:flex; gap:12px; flex-wrap:wrap; }
+    .btn-ghost{ background:transparent; border:1px solid var(--glass); color:#e8f8ee; padding:10px 14px; border-radius:10px; text-decoration:none; }
+    .btn-primary{ background:linear-gradient(90deg,var(--green),var(--accent)); color:#042617; padding:10px 16px; border-radius:12px; text-decoration:none; font-weight:700; }
+
+    .hero .card-preview{
+      flex:0 0 380px; min-width:260px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03); padding:14px; border-radius:14px;
+    }
+    .product-sample{ display:flex; gap:12px; align-items:center }
+    .product-sample img{ width:84px;height:84px;border-radius:10px; object-fit:cover; }
+    .product-sample h4{ margin:0; color:#ddf6e8; }
+    .muted{ color:var(--muted); font-size:.95rem }
+
+    /* ---------- FILTER BAR ---------- */
+    .filters{ width:95%; max-width:1200px; margin:30px auto 10px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .search {
+      flex:1; min-width:200px; display:flex; align-items:center; gap:8px;
+      background:var(--panel); border-radius:10px; padding:8px 10px; border:1px solid rgba(255,255,255,0.03);
+    }
+    .search input{ background:transparent; border:0; outline:0; color:#e9f7f0; width:100%; padding:6px; font-size:0.98rem }
+    .categories{ display:flex; gap:8px; flex-wrap:wrap }
+    .chip{ padding:8px 12px; border-radius:999px; background:transparent; border:1px solid rgba(255,255,255,0.03); color:var(--muted); cursor:pointer; }
+    .chip.active{ background:linear-gradient(90deg,var(--green),var(--accent)); color:#042617; font-weight:700; border:0 }
+
+    /* ---------- PRODUCTS GRID ---------- */
+    .grid { width:95%; max-width:1200px; margin:10px auto 60px; display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; }
+    .card {
+      background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03); border-radius:14px; overflow:hidden; transition:transform .28s, box-shadow .28s;
+    }
+    .card:hover{ transform:translateY(-8px); box-shadow:0 18px 40px rgba(2,10,7,0.45) }
+    .card img{ width:100%; height:170px; object-fit:cover; display:block; }
+    .card .body{ padding:12px 14px; }
+    .card h3{ margin:0 0 6px; color:#e9f7f0; font-size:1.05rem }
+    .card p{ margin:0 0 10px; color:var(--muted); font-size:.95rem }
+    .card .meta{ display:flex; justify-content:space-between; align-items:center; gap:8px }
+    .price{ background:rgba(255,255,255,0.02); padding:6px 10px; border-radius:10px; font-weight:700; color:var(--green) }
+
+    /* ---------- CONTACT / SIGNUP ---------- */
+    .contact-section{ width:95%; max-width:1200px; margin:40px auto 120px; display:grid; grid-template-columns:1fr 360px; gap:28px; }
+    .contact-card{ background:var(--panel); padding:18px; border-radius:12px; border:1px solid rgba(255,255,255,0.03) }
+    .form-row{ display:flex; gap:10px; }
+    input, textarea { width:100%; padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.03); background:transparent; color:#e9f7f0; }
+    button.primary { background:linear-gradient(90deg,var(--green),var(--accent)); border:0; padding:10px 14px; border-radius:10px; color:#042617; font-weight:700; cursor:pointer; }
+
+    /* ---------- FOOTER ---------- */
+    footer{ margin-top:40px; padding:28px 0; border-top:1px solid rgba(255,255,255,0.03); text-align:center; color:var(--muted) }
+
+    /* ---------- MODALS ---------- */
+    .modal-backdrop{ position:fixed; inset:0; background:rgba(2,8,6,0.6); display:none; align-items:center; justify-content:center; z-index:1200 }
+    .modal{ width:95%; max-width:420px; background:linear-gradient(180deg,#071815,#071815); border-radius:12px; padding:18px; border:1px solid rgba(255,255,255,0.04) }
+    .modal h4{ margin:0 0 8px; color:var(--green) }
+    .modal .close{ float:right; background:none; border:0; color:var(--muted); font-size:1.05rem; cursor:pointer }
+
+    /* small screens */
+    @media(max-width:880px){
+      .hero .inner{ flex-direction:column-reverse; gap:20px }
+      .contact-section{ grid-template-columns:1fr; }
+      .menu-toggle{ display:block }
+      .nav-links{ display:none }
+      .nav .mobile-open .nav-links{ display:flex; position:fixed; top:72px; left:0; right:0; background:linear-gradient(90deg, rgba(0,0,0,0.9), rgba(0,0,0,0.9)); flex-direction:column; padding:12px; gap:12px; z-index:1000; }
+    }
+
+    /* reveal animations */
+    .reveal{ opacity:0; transform:translateY(14px); transition:all .6s cubic-bezier(.2,.9,.2,1) }
+    .reveal.visible{ opacity:1; transform:translateY(0) }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <div class="nav">
+    <div class="container">
+      <a href="#" class="brand">
+        <div class="logo">S</div>
+        Sizzler Drinks
+      </a>
+
+      <button class="menu-toggle" aria-label="menu" id="menuBtn">☰</button>
+
+      <div class="nav-links" id="navLinks">
+        <a href="#hero">Home</a>
+        <a href="#products">Products</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href="#" class="cta" id="openSignIn">Sign In</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="inner">
+      <div class="left reveal">
+        <h1>Refreshingly Sizzler.</h1>
+        <p class="lead">Premium sodas, crafted coffee, coolers, pure water & fresh juices — all in one place. Sip the chill. Taste the vibe.</p>
+        <div class="buttons">
+          <a class="btn-primary" href="#products">Explore Products</a>
+          <a class="btn-ghost" id="openSignUp">Create Account</a>
+        </div>
+
+        <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap">
+          <div class="muted">Open: 8am — 11pm</div>
+          <div class="muted"> • </div>
+          <div class="muted">Delivery & Pickup</div>
+        </div>
+      </div>
+
+      <div class="card-preview reveal">
+        <div style="display:flex; align-items:center; justify-content:space-between">
+          <div style="display:flex; gap:10px; align-items:center;">
+            <img src="imagess/monday.jpg" alt="sample" style="width:76px;height:76px;border-radius:10px; object-fit:cover;">
+            <div>
+              <h4 style="margin:0;color:#e9f7f0">Signature Cold Brew</h4>
+              <div class="muted" style="font-size:.92rem">Nitro infused — bold & smooth</div>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-weight:800;color:var(--green);font-size:1.05rem">1199</div>
+            <div class="muted" style="font-size:.85rem">order now</div>
+          </div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03);margin:12px 0">
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <div class="muted">Free Wi-Fi</div>
+          <div class="muted"> • </div>
+          <div class="muted">Eco Cups</div>
+          <div class="muted"> • </div>
+          <div class="muted">Locally Roasted</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTERS -->
+  <div class="filters reveal">
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="opacity:.8"><path d="M21 21l-4.35-4.35" stroke="#9fb6aa" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="#9fb6aa" stroke-width="1.6"/></svg>
+      <input id="searchInput" placeholder="Search drinks, e.g., 'cold brew' or 'mango'">
+    </div>
+
+    <div class="categories" id="categoryChips">
+      <div class="chip active" data-filter="all">All</div>
+      <div class="chip" data-filter="coffee">Coffee</div>
+      <div class="chip" data-filter="soda">Soda</div>
+      <div class="chip" data-filter="cool">Cool Drinks</div>
+      <div class="chip" data-filter="water">Water</div>
+      <div class="chip" data-filter="juice">Fresh Juices</div>
+    </div>
+  </div>
+
+
+<!-- 1 -->
+
+
+
+  <!-- PRODUCTS GRID -->
+  <section id="products" class="reveal" style="padding-top:6px">
+    <div class="grid" id="productsGrid">
+      <!-- Product cards (data-category attribute used for filtering) -->
+      <!-- Coffee -->
+      <div class="card" data-category="coffee">
+        <img src="imagess/Flat White.jpg" alt="Espresso">
+        <div class="body">
+          <h3>Espresso Shot</h3>
+          <p>Pure, concentrated coffee — bold wake-up.</p>
+          <div class="meta">
+            <div class="price">2120</div>
+            <button class="btn-ghost addCart" data-name="Espresso Shot" data-price="120">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="coffee">
+        <img src="imagess/Cappuccino.jpg" alt="Cappuccino">
+        <div class="body">
+          <h3>Cappuccino</h3>
+          <p>Velvety foam & rich espresso.</p>
+          <div class="meta">
+            <div class="price">2220</div>
+            <button class="btn-ghost addCart" data-name="Cappuccino" data-price="220">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="coffee">
+        <img src="imagess/Iced Latte.jpg" alt="Cold Brew">
+        <div class="body">
+          <h3>Cold Brew</h3>
+          <p>Smooth, slow-brewed cold coffee.</p>
+          <div class="meta">
+            <div class="price">2260</div>
+            <button class="btn-ghost addCart" data-name="Cold Brew" data-price="260">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Soda -->
+      <div class="card" data-category="soda">
+        <img src="imagess/dark cofee.jpg" alt="Orange Soda">
+        <div class="body">
+          <h3>Orange Spark</h3>
+          <p>Bubbly citrus soda to lift your mood.</p>
+          <div class="meta">
+            <div class="price">1120</div>
+            <button class="btn-ghost addCart" data-name="Orange Spark" data-price="120">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="soda">
+        <img src="imagess/Berry soda.jpg" alt="Berry Soda">
+        <div class="body">
+          <h3>Berry Fizz</h3>
+          <p>Sweet berry soda with a fizzy kick.</p>
+          <div class="meta">
+            <div class="price">1130</div>
+            <button class="btn-ghost addCart" data-name="Berry Fizz" data-price="130">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cool Drinks -->
+      <div class="card" data-category="cool">
+        <img src="imagess/Mint Cooler.avif" alt="Mint Cooler">
+        <div class="body">
+          <h3>Mint Cooler</h3>
+          <p>Fresh mint, lime & crushed ice.</p>
+          <div class="meta">
+            <div class="price">1150</div>
+            <button class="btn-ghost addCart" data-name="Mint Cooler" data-price="150">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="cool">
+        <img src="imagess/Classic Lemonade.jpg" alt="Lemonade">
+        <div class="body">
+          <h3>Classic Lemonade</h3>
+          <p>Simple, zesty & refreshing.</p>
+          <div class="meta">
+            <div class="price">1100</div>
+            <button class="btn-ghost addCart" data-name="Classic Lemonade" data-price="100">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Water -->
+      <div class="card" data-category="water">
+        <img src="imagess/neslay.jpg" alt="Pure Water">
+        <div class="body">
+          <h3>Pure Mineral Water</h3>
+          <p>Filtered & mineral balanced.</p>
+          <div class="meta">
+            <div class="price">140</div>
+            <button class="btn-ghost addCart" data-name="Mineral Water" data-price="40">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fresh Juices -->
+      <div class="card" data-category="juice">
+        <img src="imagess/Mango Magic.jpg" alt="Mango Juice">
+        <div class="body">
+          <h3>Mango Magic</h3>
+          <p>Ripe mangoes, no sugar added.</p>
+          <div class="meta">
+            <div class="price">1180</div>
+            <button class="btn-ghost addCart" data-name="Mango Magic" data-price="180">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="juice">
+        <img src="imagess/Green Detox.jpg" alt="Green Juice">
+        <div class="body">
+          <h3>Green Detox</h3>
+          <p>Spinach, apple & lemon blend.</p>
+          <div class="meta">
+            <div class="price">1170</div>
+            <button class="btn-ghost addCart" data-name="Green Detox" data-price="170">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT & CONTACT -->
+  <section id="about" style="padding-top:30px">
+    <div style="width:95%; max-width:1200px; margin:30px auto; display:grid; grid-template-columns:1fr 360px; gap:26px; align-items:start" class="reveal">
+      <div style="background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01)); padding:18px; border-radius:12px; border:1px solid rgba(255,255,255,0.03)">
+        <h2 style="color:var(--green); margin-top:0">About Sizzler</h2>
+        <p class="muted">Sizzler Drinks creates premium handcrafted beverages using high quality ingredients. From energizing coffees to refreshing juices and sparkling sodas — our menu is curated to make every sip memorable.</p>
+        <ul style="margin-top:12px; color:var(--muted);">
+          <li>Locally sourced ingredients</li>
+          <li>Sustainable packaging</li>
+          <li>Baristas & mixologists trained in-house</li>
+        </ul>
+      </div>
+
+      <div style="background:var(--panel); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.03)">
+        <h3 style="color:var(--green); margin-top:0">Contact</h3>
+        <div style="color:var(--muted); font-size:.95rem">Have a question or want to reserve? Send us a message.</div>
+        <div style="margin-top:12px">
+          <input id="ct-name" placeholder="Your name" style="width:100%;margin-bottom:8px;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:#e9f7f0">
+          <input id="ct-email" placeholder="Email" style="width:100%;margin-bottom:8px;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:#e9f7f0">
+          <textarea id="ct-msg" placeholder="Message" rows="4" style="width:100%;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:#e9f7f0"></textarea>
+          <div style="margin-top:10px; display:flex; gap:8px">
+            <button class="primary" id="sendContact">Send</button>
+            <button class="btn-ghost" id="clearContact">Clear</button>
+          </div>
+          <div id="contactAlert" style="margin-top:10px; display:none; color:var(--green); font-weight:700"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div style="width:95%; max-width:1200px; margin:auto; display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap">
+      <div style="display:flex; align-items:center; gap:12px">
+        <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--green),var(--accent)); display:flex;align-items:center;justify-content:center;color:#042617;font-weight:800">S</div>
+        <div>
+          <div style="font-weight:700">Sizzler Drinks</div>
+          <div class="muted" style="font-size:.9rem">Premium refreshment studio</div>
+        </div>
+      </div>
+
+      <div class="muted" style="text-align:right">© <span id="year"></span> Sizzler Drinks • All rights reserved</div>
+    </div>
+  </footer>
+
+  <!-- SIGN IN / SIGN UP MODALS -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="close" id="closeModal">✕</button>
+      <div id="modalContent">
+        <!-- content replaced by JS -->
+      </div>
+    </div>
+  </div>
+
+<script>
+$(function(){
+  // current year
+  $('#year').text(new Date().getFullYear());
+
+  // Mobile nav toggle
+  $('#menuBtn').on('click', function(){
+    $('.nav').toggleClass('mobile-open');
+  });
+
+  // Reveal animations
+  function revealCheck(){
+    $('.reveal').each(function(){
+      var top = $(this).offset().top, winTop = $(window).scrollTop(), winH = $(window).height();
+      if(top < winTop + winH - 60) $(this).addClass('visible');
+    });
+  }
+  revealCheck();
+  $(window).on('scroll resize', revealCheck);
+
+  // Filtering & Search
+  function filterProducts(filter, query){
+    $('#productsGrid .card').each(function(){
+      var cat = $(this).data('category') || 'all';
+      var title = $(this).find('h3').text().toLowerCase();
+      var textMatch = !query || title.indexOf(query) !== -1;
+      var catMatch = (filter === 'all' || cat === filter);
+      if(catMatch && textMatch) $(this).show(); else $(this).hide();
+    });
+  }
+
+  // chip click
+  $('.chip').on('click', function(){
+    $('.chip').removeClass('active');
+    $(this).addClass('active');
+    var f = $(this).data('filter');
+    filterProducts(f, $('#searchInput').val().toLowerCase());
+  });
+
+  // search input
+  $('#searchInput').on('input', function(){
+    var q = $(this).val().toLowerCase();
+    var active = $('.chip.active').data('filter') || 'all';
+    filterProducts(active, q);
+  });
+
+  // Add to cart demo
+  $('.addCart').on('click', function(){
+    var name = $(this).data('name');
+    var price = $(this).data('price');
+    alert(name + ' added to cart — ₹' + price);
+  });
+
+  // Contact form handler (demo)
+  $('#sendContact').on('click', function(){
+    var n = $('#ct-name').val().trim(); var e = $('#ct-email').val().trim(); var m = $('#ct-msg').val().trim();
+    if(!n || !e || !m){ $('#contactAlert').text('Please fill all fields').css('color','tomato').show().delay(2500).fadeOut(); return; }
+    $('#contactAlert').text('Message sent! We will contact you soon.').css('color', 'var(--green)').show().delay(3000).fadeOut();
+    $('#ct-name,#ct-email,#ct-msg').val('');
+  });
+  $('#clearContact').on('click', function(){ $('#ct-name,#ct-email,#ct-msg').val(''); });
+
+  // Modal openers (Sign In / Sign Up)
+  function openModal(html){
+    $('#modalContent').html(html);
+    $('#modalBackdrop').fadeIn(180);
+  }
+  function closeModal(){ $('#modalBackdrop').fadeOut(120); }
+
+  $('#openSignIn').on('click', function(e){
+    e.preventDefault();
+    var html = '<h4 id="modalTitle">Sign In</h4>' +
+      '<div style="margin-top:8px"><input id="si-email" placeholder="Email" style="width:100%;padding:8px;margin-top:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:#e9f7f0"></div>' +
+      '<div><input id="si-pass" type="password" placeholder="Password" style="width:100%;padding:8px;margin-top:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:#e9f7f0"></div>' +
+      '<div style="margin-top:12px;display:flex;gap:8px"><button class="primary" id="doSignIn">Sign In</button><button class="btn-ghost" id="showSignUp">Create account</button></div>' +
+      '<div id="si-msg" style="margin-top:10px;color:var(--green);display:none;font-weight:700"></div>';
+    openModal(html);
+  });
+
+  $('#openSignUp').on('click', function(e){
+    e.preventDefault();
+    $('#openSignUp').addClass('active');
+    var html = '<h4 id="modalTitle">Create Account</h4>' +
+      '<div style="margin-top:8px"><input id="su-name" placeholder="Full name" style="width:100%;padding:8px;margin-top:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:#e9f7f0"></div>' +
+      '<div><input id="su-email" placeholder="Email" style="width:100%;padding:8px;margin-top:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:#e9f7f0"></div>' +
+      '<div><input id="su-pass" type="password" placeholder="Password" style="width:100%;padding:8px;margin-top:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:#e9f7f0"></div>' +
+      '<div style="margin-top:12px;display:flex;gap:8px"><button class="primary" id="doSignUp">Sign Up</button><button class="btn-ghost" id="showSignIn">Already have account</button></div>' +
+      '<div id="su-msg" style="margin-top:10px;color:var(--green);display:none;font-weight:700"></div>';
+    openModal(html);
+  });
+
+  // Modal close buttons (use event delegation)
+  $('#modalBackdrop').on('click', function(e){
+    if(e.target.id === 'modalBackdrop' || e.target.id === 'closeModal'){ closeModal(); }
+  });
+  $('#closeModal').on('click', closeModal);
+
+  // delegate modal inner events
+  $('#modalBackdrop').on('click', '#showSignUp', function(){
+    $('#openSignUp').trigger('click');
+  });
+  $('#modalBackdrop').on('click', '#showSignIn', function(){
+    $('#openSignIn').trigger('click');
+  });
+
+  // Sign in / Sign up actions (demo: simple front-end validation)
+  $('#modalBackdrop').on('click', '#doSignIn', function(){
+    var email = $('#si-email').val(), pass = $('#si-pass').val();
+    if(!email || !pass){ $('#si-msg').text('Please provide credentials').show().delay(2000).fadeOut(); return; }
+    $('#si-msg').text('Signed in — welcome!').show().delay(1400).fadeOut(); setTimeout(closeModal, 1400);
+  });
+
+  $('#modalBackdrop').on('click', '#doSignUp', function(){
+    var name = $('#su-name').val(), em = $('#su-email').val(), pw = $('#su-pass').val();
+    if(!name || !em || !pw){ $('#su-msg').text('Fill all fields').show().delay(2000).fadeOut(); return; }
+    $('#su-msg').text('Account created — logged in!').show().delay(1400).fadeOut(); setTimeout(closeModal, 1400);
+  });
+
+  // toggles for mobile nav - show/hide actual links
+  $('#menuBtn').on('click', function(){
+    $('.nav .container').toggleClass('mobile-open');
+  });
+
+  // enable smooth scrolling for page anchors
+  $('a[href^="#"]').on('click', function(e){
+    var target = $(this).attr('href');
+    if(target.length > 1){
+      e.preventDefault();
+      var pos = $(target).offset().top - 62;
+      $('html,body').animate({scrollTop:pos}, 600);
+      if($(window).width() < 880){ $('.nav .container').removeClass('mobile-open'); }
+    }
+  });
+
+  // initial filter — show all
+  filterProducts('all','');
+
+  // Nice little fade-in for hero buttons
+  $('.hero .btn-primary, .hero .btn-ghost').hide().fadeIn(1200);
+
+  // Close modal with Esc
+  $(document).on('keydown', function(e){ if(e.key === "Escape") closeModal(); });
+});
+</script>
+</body>
+</html>
+
